@@ -1,0 +1,59 @@
+import pandas as pd
+data = pd.read_csv('C:/users/1/desktop/train.csv')
+data.head()
+data1 = data[['Pclass','Name','Sex','Age','SibSp','Parch','Fare','Embarked']]
+data1.head()
+def rep(data1):
+    data1['Sex'].replace({'male':0,'female':1}, inplace = True)
+    data1['Age'].fillna(data1['Age'].mean(), inplace = True)
+    data1['Embarked'].fillna('S', inplace = True)
+    data1['Embarked'].replace({'S':0,'C':1,'Q':2}, inplace = True)
+    return(data1)
+rep(data1)
+data1['Sex'].value_counts()
+data1.loc[data1['Fare']<10,'Fare']=0
+data1.loc[(data1['Fare']>=10)&(data1['Fare']<30),'Fare']=1
+data1.loc[(data1['Fare']>=30)&(data1['Fare']<50),'Fare']=2
+data1.loc[(data1['Fare']>=50)&(data1['Fare']<70),'Fare']=3
+data1.loc[(data1['Fare']>=70)&(data1['Fare']<100),'Fare']=4
+data1.loc[data1['Fare']>=100, 'Fare']=5
+data1.head()
+data1['Title'] = data1['Name'].str.extract(', (.+?)\.', expand = True)
+data1['Title'].value_counts()
+data1['Title'].replace({'Mr':0,'Miss':1,'Mrs':2,'Master':3,'Dr':4,'Rev':5,'Col':6,'Mlle':6,'Major':6,'Ms':6,
+'Don':6,'Sir':6,'Lady':6,'Mme':6,'Jonkheer':6,'Capt':6,'the Countess':6}, inplace = True)
+data1['Title'].value_counts()
+data1.head()
+test = pd.read_csv('C:/users/1/desktop/test.csv')
+test.head()
+test1 = test[['Pclass','Name','Sex','Age','SibSp','Parch','Fare','Embarked']]
+def rep(test1):
+    test1['Sex'].replace({'male':0,'female':1}, inplace = True)
+    test1['Age'].fillna(test1['Age'].mean(), inplace = True)
+    test1['Embarked'].fillna('S', inplace = True)
+    test1['Embarked'].replace({'S':0,'C':1,'Q':2}, inplace = True)
+    return(test1)
+rep(test1)
+test1.loc[test1['Fare']<10,'Fare']=0
+test1.loc[(test1['Fare']>=10)&(test1['Fare']<30),'Fare']=1
+test1.loc[(test1['Fare']>=30)&(test1['Fare']<50),'Fare']=2
+test1.loc[(test1['Fare']>=50)&(test1['Fare']<70),'Fare']=3
+test1.loc[(test1['Fare']>=70)&(test1['Fare']<100),'Fare']=4
+test1.loc[test1['Fare']>=100, 'Fare']=5
+test1['Title'] = test1['Name'].str.extract(', (.+?)\.', expand = True)
+test1['Title'].replace({'Mr':0,'Miss':1,'Mrs':2,'Master':3,'Dr':4,'Rev':5,'Col':6,'Mlle':6,'Major':6,'Ms':6,'Don':6,
+'Sir':6,'Lady':6,'Mme':6,'Jonkheer':6,'Capt':6,'the Countess':6}, inplace = True)
+test1['Title'].value_counts()
+test1['Title'].replace({'Dona':6}, inplace = True)
+test1.head()
+test1.drop(columns = 'Name', inplace = True)
+X = data1
+y = data['Survived']
+import xgboost
+from xgboost import XGBClassifier
+xb = XGBClassifier(learning_rate=1)
+xb.fit(X,y)
+y_pred = xb.predict(test1)
+xb.score(X,y)
+df = pd.DataFrame({'PassengerId':test['PassengerId'], 'Survived':y_pred})
+df.to_csv('C:/users/1/desktop/kaggle120.csv', header = ['PassengerId', 'Survived'], index = False)
